@@ -148,6 +148,23 @@ const firebaseDriver = {
       });
       return orders;
     }
+  },
+  websiteReviews: {
+    getAll: async () => {
+      const firestore = getDb();
+      const snapshot = await firestore.collection('websiteReviews').orderBy('createdAt', 'desc').get();
+      let reviews = [];
+      snapshot.forEach(doc => {
+        reviews.push({ id: doc.id, ...doc.data() });
+      });
+      return reviews;
+    },
+    create: async (review) => {
+      const firestore = getDb();
+      const { id, ...data } = review;
+      await firestore.collection('websiteReviews').doc(id).set(data);
+      return review;
+    }
   }
 };
 

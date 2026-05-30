@@ -6,6 +6,13 @@
       "email": "krisha@gmail.com",
       "password": "$2b$10$qsc/Aq123uY9VlT6MychiuPo/.ljw8kqyngs5shvuRRr1LpRkPEWC",
       "createdAt": "2026-05-30T12:23:33.055Z"
+    },
+    {
+      "id": "7e341040-3c4d-4866-ad46-3ac7db46fe99",
+      "name": "sanjay",
+      "email": "san@gmail.com",
+      "password": "$2a$10$wTuHqr3Hp1FoTFVJnZpFV.Eo449R0K7bRFKFescq5lDiWJUy4WotS",
+      "createdAt": "2026-05-30T13:56:02.298Z"
     }
   ],
   "products": [
@@ -22,7 +29,7 @@
         "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=800&auto=format&fit=crop&q=80"
       ],
       "rating": 4.8,
-      "stock": 24,
+      "stock": 23,
       "featured": true,
       "reviews": [
         {
@@ -180,7 +187,7 @@
         "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800&auto=format&fit=crop&q=80"
       ],
       "rating": 4.6,
-      "stock": 20,
+      "stock": 19,
       "featured": false,
       "reviews": []
     },
@@ -214,7 +221,7 @@
         "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=800&auto=format&fit=crop&q=80"
       ],
       "rating": 4.5,
-      "stock": 35,
+      "stock": 34,
       "featured": false,
       "reviews": []
     },
@@ -248,7 +255,7 @@
         "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=800&auto=format&fit=crop&q=80"
       ],
       "rating": 4.9,
-      "stock": 6,
+      "stock": 5,
       "featured": true,
       "reviews": []
     },
@@ -282,7 +289,7 @@
         "https://images.unsplash.com/photo-1574375927938-d5a98e8edd86?w=800&auto=format&fit=crop&q=80"
       ],
       "rating": 4.8,
-      "stock": 14,
+      "stock": 13,
       "featured": true,
       "reviews": []
     },
@@ -371,7 +378,8 @@
         "image": "https://images.unsplash.com/photo-1517256064527-09c53b2d0bc6?w=800&auto=format&fit=crop&q=80",
         "quantity": 1
       }
-    ]
+    ],
+    "7e341040-3c4d-4866-ad46-3ac7db46fe99": []
   },
   "orders": [
     {
@@ -427,6 +435,60 @@
       "paymentMethod": "COD",
       "paymentStatus": "Pending",
       "createdAt": "2026-05-30T12:24:57.658Z"
+    },
+    {
+      "id": "ord_454b82e0",
+      "userId": "7e341040-3c4d-4866-ad46-3ac7db46fe99",
+      "total": 1093.97,
+      "discount": 0,
+      "discountPercent": 0,
+      "couponCode": null,
+      "items": [
+        {
+          "productId": "prod_1",
+          "name": "NovaSound Elite Wireless Headphones",
+          "price": 299.99,
+          "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
+          "quantity": 1
+        },
+        {
+          "productId": "prod_8",
+          "name": "AeroGrip Performance Running Shoes",
+          "price": 125,
+          "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop&q=80",
+          "quantity": 1
+        },
+        {
+          "productId": "prod_10",
+          "name": "AuraGlow Smart LED Desk Lamp",
+          "price": 79.99,
+          "image": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&auto=format&fit=crop&q=80",
+          "quantity": 1
+        },
+        {
+          "productId": "prod_12",
+          "name": "IronGrip Adjustable Dumbbells",
+          "price": 199.99,
+          "image": "https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?w=800&auto=format&fit=crop&q=80",
+          "quantity": 1
+        },
+        {
+          "productId": "prod_14",
+          "name": "UltraHD 4K Portable Projector",
+          "price": 389,
+          "image": "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=800&auto=format&fit=crop&q=80",
+          "quantity": 1
+        }
+      ],
+      "shippingAddress": {
+        "name": "sanjay",
+        "address": "Seventh Grace",
+        "city": "Ahmedabad",
+        "zip": "360378"
+      },
+      "paymentMethod": "COD",
+      "paymentStatus": "Pending",
+      "createdAt": "2026-05-30T13:57:24.600Z"
     }
   ],
   "websiteReviews": [

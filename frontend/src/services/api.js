@@ -156,4 +156,34 @@ export const api = {
     if (!res.ok) throw new Error(data.message || 'Failed to fetch orders');
     return data;
   },
+
+  // Reviews APIs
+  async submitProductReview(productId, rating, comment) {
+    const res = await fetch(`${API_BASE_URL}/reviews/product/${productId}`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ rating, comment }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to submit review');
+    return data;
+  },
+
+  async getWebsiteReviews() {
+    const res = await fetch(`${API_BASE_URL}/reviews/website`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to fetch website reviews');
+    return data;
+  },
+
+  async submitWebsiteReview(rating, comment) {
+    const res = await fetch(`${API_BASE_URL}/reviews/website`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ rating, comment }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to submit website review');
+    return data;
+  },
 };

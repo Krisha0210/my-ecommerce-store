@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, Cpu, Shirt, Home as HomeIcon, Flame } from 'lucide-react';
+import { ArrowRight, Sparkles, Cpu, Shirt, Home as HomeIcon, Flame, BookOpen, Star } from 'lucide-react';
 import { api } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import Loader from '../components/Loader';
@@ -9,27 +9,33 @@ const categoriesList = [
   { name: 'Electronics', icon: Cpu, desc: 'High-performance audio, trackers & watches', color: 'from-indigo-500/10 to-cyan-500/10' },
   { name: 'Fashion', icon: Shirt, desc: 'Italian watches, organic canvas bags', color: 'from-purple-500/10 to-rose-500/10' },
   { name: 'Home & Living', icon: HomeIcon, desc: 'Ergonomic office wares & smart brewers', color: 'from-emerald-500/10 to-teal-500/10' },
-  { name: 'Fitness', icon: Flame, desc: 'High-grip mats, breathable running shoes', color: 'from-rose-500/10 to-amber-500/10' },
+  { name: 'Books', icon: BookOpen, desc: 'Design guides, code manuals & tech books', color: 'from-amber-500/10 to-orange-500/10' },
+  { name: 'Sports & Fitness', icon: Flame, desc: 'High-grip mats, adjustable dumbbells & shoes', color: 'from-rose-500/10 to-pink-500/10' },
 ];
 
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchFeatured = async () => {
+    const fetchHomeData = async () => {
       try {
-        const products = await api.getProducts();
+        const [products, reviews] = await Promise.all([
+          api.getProducts(),
+          api.getWebsiteReviews()
+        ]);
         setFeaturedProducts(products.filter(p => p.featured));
+        setTestimonials(reviews);
       } catch (err) {
         console.error(err);
-        setError('Could not retrieve products. Make sure the server is active!');
+        setError('Could not retrieve store data. Make sure the server is active!');
       } finally {
         setLoading(false);
       }
     };
-    fetchFeatured();
+    fetchHomeData();
   }, []);
 
   return (
@@ -72,7 +78,7 @@ export default function Home() {
         <p className="text-sm text-slate-400 mb-10 text-center md:text-left">
           Pick your destination collection and start exploring.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {categoriesList.map((cat) => {
             const Icon = cat.icon;
             return (
@@ -85,7 +91,7 @@ export default function Home() {
                   <Icon className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">
+                  <h3 className="text-base font-bold text-white group-hover:text-indigo-400 transition-colors">
                     {cat.name}
                   </h3>
                   <p className="text-xs text-slate-400 mt-1 leading-relaxed">
@@ -127,6 +133,67 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.map(product => (
               <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-900">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+            Customer Testimonials
+          </h2>
+          <p className="text-sm text-slate-400 mt-2 max-w-lg mx-auto">
+            See what our community has to say about their Veloce shopping experience.
+          </p>
+        </div>
+
+        {testimonials.length === 0 ? (
+          <div className="glass p-8 text-center rounded-2xl border border-slate-900">
+            <p className="text-xs text-slate-500 font-medium italic">No testimonials available yet. Be the first to leave one in your profile!</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {testimonials.slice(0, 3).map((testimonial) => (
+              <div 
+                key={testimonial.id} 
+                className="rounded-2xl glass p-6 border border-slate-900 flex flex-col justify-between gap-6 hover:border-indigo-500/20 transition-all duration-300 relative overflow-hidden group"
+              >
+                <div className="absolute top-[-20%] right-[-10%] w-32 h-32 rounded-full bg-indigo-500/5 blur-2xl pointer-events-none"></div>
+                <div className="flex flex-col gap-4">
+                  {/* Rating stars */}
+                  <div className="flex gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={`w-3.5 h-3.5 ${
+                          i < testimonial.rating 
+                            ? 'fill-amber-400 text-amber-400' 
+                            : 'text-slate-800'
+                        }`} 
+                      />
+                    ))}
+                  </div>
+                  <p className="text-sm text-slate-300 italic leading-relaxed">
+                    "{testimonial.comment}"
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-3 border-t border-slate-900 pt-4">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-950 border border-indigo-500/20 flex items-center justify-center font-bold text-xs text-indigo-300 shrink-0">
+                    {testimonial.userName ? testimonial.userName.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white leading-none">
+                      {testimonial.userName || 'Anonymous'}
+                    </h4>
+                    <span className="text-[10px] text-slate-500 font-semibold mt-1 block">
+                      Verified Reviewer
+                    </span>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         )}

@@ -45,7 +45,7 @@ exports.createProduct = async (req, res) => {
     }
 
     const newProduct = {
-      id: `prod_${uuidv4().split('-')[0]}`,
+      id: uuidv4(),
       name,
       description,
       price: parseFloat(price),

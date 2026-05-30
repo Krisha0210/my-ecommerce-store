@@ -3,11 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import { Star, ShoppingCart, ArrowLeft, ShieldCheck, Truck, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '../services/api';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import Loader from '../components/Loader';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -15,21 +18,27 @@ export default function ProductDetail() {
   const [added, setAdded] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
+  // Review states
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+  const [reviewSuccess, setReviewSuccess] = useState('');
+
+  const fetchProduct = async () => {
+    try {
+      const data = await api.getProductById(id);
+      setProduct(data);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load product details.');
+    }
+  };
+
   useEffect(() => {
-    const fetchProduct = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const data = await api.getProductById(id);
-        setProduct(data);
-      } catch (err) {
-        console.error(err);
-        setError('Failed to load product details.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProduct();
+    setLoading(true);
+    fetchProduct().finally(() => setLoading(false));
   }, [id]);
 
   const handleAddToCart = () => {
@@ -163,7 +172,7 @@ export default function ProductDetail() {
                 <Star 
                   key={i} 
                   className={`w-4 h-4 ${
-                    i < Math.floor(product.rating) 
+                    i < Math.floor(product.rating || 5.0) 
                       ? 'fill-amber-400 text-amber-400' 
                       : 'text-slate-700'
                   }`} 
@@ -171,10 +180,10 @@ export default function ProductDetail() {
               ))}
             </div>
             <span className="text-sm font-semibold text-slate-300">
-              {product.rating} / 5.0
+              {(product.rating || 5.0).toFixed(1)} / 5.0
             </span>
             <span className="text-xs text-slate-500 font-medium ml-2">
-              (48 Reviews)
+              ({product.reviews ? product.reviews.length : 0} Reviews)
             </span>
           </div>
 
@@ -263,6 +272,186 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {/* Customer Reviews Section */}
+      <section className="mt-16 pt-12 border-t border-slate-900">
+        <h2 className="text-2xl font-extrabold text-white mb-8">Customer Reviews</h2>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+          {/* Rating Summary Card */}
+          <div className="glass p-6 rounded-2xl border border-slate-900 flex flex-col gap-5">
+            <div className="flex items-center gap-4">
+              <span className="text-5xl font-black text-white">{(product.rating || 5.0).toFixed(1)}</span>
+              <div className="flex flex-col gap-0.5">
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className={`w-5 h-5 ${
+                        i < Math.floor(product.rating || 5.0) 
+                          ? 'fill-amber-400 text-amber-400' 
+                          : 'text-slate-700'
+                      }`} 
+                    />
+                  ))}
+                </div>
+                <span className="text-xs text-slate-400">Based on {product.reviews ? product.reviews.length : 0} reviews</span>
+              </div>
+            </div>
+
+            {/* Distribution bars */}
+            <div className="flex flex-col gap-3.5">
+              {[5, 4, 3, 2, 1].map(stars => {
+                const reviews = product.reviews || [];
+                const count = reviews.filter(r => r.rating === stars).length;
+                const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                return (
+                  <div key={stars} className="flex items-center gap-3 text-xs text-slate-400">
+                    <span className="w-3 font-semibold">{stars}</span>
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
+                    <div className="flex-1 h-2 rounded-full bg-slate-950 overflow-hidden">
+                      <div 
+                        className="h-full bg-indigo-500 rounded-full" 
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                    <span className="w-8 text-right font-medium">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Reviews List & Submission */}
+          <div className="lg:col-span-2 flex flex-col gap-8">
+            {/* Review form for authenticated users */}
+            {user ? (
+              <div className="glass p-6 rounded-2xl border border-slate-900 relative overflow-hidden">
+                <div className="absolute top-[-20%] right-[-10%] w-40 h-40 rounded-full bg-indigo-500/5 blur-2xl pointer-events-none"></div>
+                <h3 className="text-base font-bold text-white mb-4">Write a Customer Review</h3>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (submittingReview) return;
+                  if (rating === 0) {
+                    setReviewError('Please select a star rating.');
+                    return;
+                  }
+                  if (!comment.trim()) {
+                    setReviewError('Please write a comment.');
+                    return;
+                  }
+
+                  setSubmittingReview(true);
+                  setReviewError('');
+                  setReviewSuccess('');
+                  try {
+                    await api.submitProductReview(id, rating, comment);
+                    setComment('');
+                    setRating(0);
+                    setReviewSuccess('Thank you! Your review has been submitted successfully.');
+                    await fetchProduct();
+                    setTimeout(() => setReviewSuccess(''), 4000);
+                  } catch (err) {
+                    console.error(err);
+                    setReviewError(err.message || 'Failed to submit review. Please try again.');
+                  } finally {
+                    setSubmittingReview(false);
+                  }
+                }} className="flex flex-col gap-4">
+                  {/* Star selection rating */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-slate-300 font-medium">Your Rating:</span>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(stars => (
+                        <button
+                          key={stars}
+                          type="button"
+                          onClick={() => setRating(stars)}
+                          onMouseEnter={() => setHoverRating(stars)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          className="p-1 rounded transition-transform hover:scale-110 cursor-pointer"
+                        >
+                          <Star 
+                            className={`w-6 h-6 ${
+                              stars <= (hoverRating || rating) 
+                                ? 'fill-amber-400 text-amber-400' 
+                                : 'text-slate-700 hover:text-slate-500'
+                            }`} 
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Comment text */}
+                  <textarea
+                    rows="3"
+                    required
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Tell us what you liked or disliked about this product..."
+                    className="w-full text-sm bg-slate-900 border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-slate-200 focus:outline-none resize-none transition-colors"
+                  />
+
+                  {reviewError && <p className="text-xs font-semibold text-rose-400">{reviewError}</p>}
+                  {reviewSuccess && <p className="text-xs font-semibold text-emerald-400">{reviewSuccess}</p>}
+
+                  <button
+                    type="submit"
+                    disabled={submittingReview}
+                    className="self-end bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs px-5 py-3 rounded-xl transition-all shadow cursor-pointer"
+                  >
+                    {submittingReview ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="glass p-6 rounded-2xl border border-slate-900 text-center">
+                <p className="text-sm text-slate-400 mb-3">You must be logged in to post a review.</p>
+                <Link to={`/login?redirect=product/${id}`} className="inline-block text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2.5 rounded-xl transition-all shadow">
+                  Sign In to Review
+                </Link>
+              </div>
+            )}
+
+            {/* List of reviews */}
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-bold text-white">All Reviews ({product.reviews ? product.reviews.length : 0})</h3>
+              {(!product.reviews || product.reviews.length === 0) ? (
+                <p className="text-xs text-slate-500 font-medium italic">No reviews yet for this product. Be the first to write one!</p>
+              ) : (
+                product.reviews.map(rev => (
+                  <div key={rev.id} className="rounded-xl border border-slate-900 bg-slate-950/20 p-5 flex gap-4">
+                    {/* User initials bubble */}
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm shrink-0">
+                      {rev.userName ? rev.userName.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-4 flex-wrap mb-1">
+                        <h4 className="text-sm font-bold text-white truncate">{rev.userName || 'Anonymous'}</h4>
+                        <span className="text-[10px] text-slate-500 font-medium">{new Date(rev.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex gap-0.5 mb-2">
+                        {[...Array(5)].map((_, i) => (
+                          <Star 
+                            key={i} 
+                            className={`w-3 h-3 ${
+                              i < rev.rating 
+                                ? 'fill-amber-400 text-amber-400' 
+                                : 'text-slate-800'
+                            }`} 
+                          />
+                        ))}
+                      </div>
+                      <p className="text-xs text-slate-300 leading-relaxed">{rev.comment}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

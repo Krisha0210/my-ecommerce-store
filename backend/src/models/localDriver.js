@@ -114,6 +114,19 @@ const localDriver = {
       const db = await readDb();
       return db.orders.filter(o => o.userId === userId);
     }
+  },
+  websiteReviews: {
+    getAll: async () => {
+      const db = await readDb();
+      return db.websiteReviews || [];
+    },
+    create: async (review) => {
+      const db = await readDb();
+      if (!db.websiteReviews) db.websiteReviews = [];
+      db.websiteReviews.push(review);
+      await writeDb(db);
+      return review;
+    }
   }
 };
 

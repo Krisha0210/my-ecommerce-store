@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { Package, Heart, Tag, HelpCircle, Copy, Search, ChevronDown, CheckCircle } from 'lucide-react';
+import { Package, Heart, Tag, HelpCircle, Copy, Search, ChevronDown, CheckCircle, MessageSquare, Star } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Loader from '../components/Loader';
@@ -21,6 +21,14 @@ export default function Profile() {
   // Help FAQ states
   const [faqSearch, setFaqSearch] = useState('');
   const [expandedFaq, setExpandedFaq] = useState(null);
+
+  // Store review states
+  const [storeRating, setStoreRating] = useState(0);
+  const [hoverStoreRating, setHoverStoreRating] = useState(0);
+  const [storeComment, setStoreComment] = useState('');
+  const [submittingStoreReview, setSubmittingStoreReview] = useState(false);
+  const [storeReviewError, setStoreReviewError] = useState('');
+  const [storeReviewSuccess, setStoreReviewSuccess] = useState('');
 
   const couponsList = [
     { code: 'WELCOME10', discount: '10% OFF', desc: 'Valid on your first order catalog wide.' },
@@ -151,6 +159,17 @@ export default function Profile() {
           >
             <HelpCircle className="w-4.5 h-4.5" />
             Help Center
+          </button>
+          <button
+            onClick={() => setActiveTab('review')}
+            className={`flex items-center gap-3 w-full text-left text-sm px-4 py-3 rounded-xl font-semibold transition-all cursor-pointer ${
+              activeTab === 'review'
+                ? 'bg-indigo-600 text-white shadow-lg'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900/50'
+            }`}
+          >
+            <MessageSquare className="w-4.5 h-4.5" />
+            Store Review
           </button>
         </aside>
 
@@ -352,6 +371,94 @@ export default function Profile() {
                     className="self-end bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow cursor-pointer"
                   >
                     Submit Ticket
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* STORE REVIEW TAB */}
+          {activeTab === 'review' && (
+            <div className="flex flex-col gap-6">
+              <div>
+                <h2 className="text-xl font-extrabold text-white mb-2">Write Store Review</h2>
+                <p className="text-sm text-slate-400">Share your overall feedback and rate your experience on our website.</p>
+              </div>
+
+              <div className="rounded-2xl glass p-6 border border-slate-900 relative overflow-hidden">
+                <div className="absolute top-[-20%] right-[-10%] w-40 h-40 rounded-full bg-indigo-500/5 blur-2xl pointer-events-none"></div>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (submittingStoreReview) return;
+                  if (storeRating === 0) {
+                    setStoreReviewError('Please select a rating.');
+                    return;
+                  }
+                  if (!storeComment.trim()) {
+                    setStoreReviewError('Please write feedback details.');
+                    return;
+                  }
+
+                  setSubmittingStoreReview(true);
+                  setStoreReviewError('');
+                  setStoreReviewSuccess('');
+                  try {
+                    await api.submitWebsiteReview(storeRating, storeComment);
+                    setStoreComment('');
+                    setStoreRating(0);
+                    setStoreReviewSuccess('Thank you! Your feedback has been received and helps us improve Veloce.');
+                    setTimeout(() => setStoreReviewSuccess(''), 5000);
+                  } catch (err) {
+                    console.error(err);
+                    setStoreReviewError(err.message || 'Failed to submit website review. Please try again.');
+                  } finally {
+                    setSubmittingStoreReview(false);
+                  }
+                }} className="flex flex-col gap-5">
+                  {/* Star rating selector */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-slate-300 font-medium">Your Rating:</span>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(stars => (
+                        <button
+                          key={stars}
+                          type="button"
+                          onClick={() => setStoreRating(stars)}
+                          onMouseEnter={() => setHoverStoreRating(stars)}
+                          onMouseLeave={() => setHoverStoreRating(0)}
+                          className="p-1 rounded transition-transform hover:scale-110 cursor-pointer"
+                        >
+                          <Star 
+                            className={`w-6 h-6 ${
+                              stars <= (hoverStoreRating || storeRating) 
+                                ? 'fill-amber-400 text-amber-400' 
+                                : 'text-slate-700 hover:text-slate-500'
+                            }`} 
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Comment text */}
+                  <textarea
+                    rows="4"
+                    required
+                    value={storeComment}
+                    onChange={(e) => setStoreComment(e.target.value)}
+                    placeholder="What do you think about our store design, performance, and products?..."
+                    className="w-full text-sm bg-slate-900 border border-slate-800 focus:border-indigo-500/50 rounded-xl px-4 py-3 text-slate-200 focus:outline-none resize-none transition-colors"
+                  />
+
+                  {storeReviewError && <p className="text-xs font-semibold text-rose-400">{storeReviewError}</p>}
+                  {storeReviewSuccess && <p className="text-xs font-semibold text-emerald-400">{storeReviewSuccess}</p>}
+
+                  <button
+                    type="submit"
+                    disabled={submittingStoreReview}
+                    className="self-end bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs px-5 py-3 rounded-xl transition-all shadow cursor-pointer"
+                  >
+                    {submittingStoreReview ? 'Submitting...' : 'Submit Feedback'}
                   </button>
                 </form>
               </div>
