@@ -112,8 +112,8 @@ export default function Checkout() {
       
       // Simulate bank authorization processing delay
       setTimeout(() => {
+        navigate('/order-confirmation/' + order.id, { state: { order } });
         clearCart();
-        navigate('/confirmation', { state: { order } });
       }, 2000);
     } catch (err) {
       console.error(err);

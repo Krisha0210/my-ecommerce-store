@@ -33,7 +33,7 @@ export default function OrderConfirmation() {
 
       {/* Confirmation Header */}
       <h1 className="text-3xl sm:text-4xl font-extrabold text-white text-center mb-2">
-        Thank You for Your Order!
+        Order Placed Successfully!
       </h1>
       <p className="text-sm text-slate-400 text-center max-w-md mb-8">
         {order.paymentMethod === 'Cash on Delivery' 
@@ -104,8 +104,8 @@ export default function OrderConfirmation() {
       {/* Navigation triggers */}
       <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
         <Link 
-          to="/products"
-          className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/15"
+          to="/"
+          className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/15 hover:translate-y-[-1px]"
         >
           <ShoppingBag className="w-4 h-4" />
           Continue Shopping
