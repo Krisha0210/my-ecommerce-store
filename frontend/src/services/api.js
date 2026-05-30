@@ -1,4 +1,16 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const getBaseUrl = () => {
+  let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  // If the env variable is set but doesn't end with /api, normalize it
+  if (import.meta.env.VITE_API_URL && !baseUrl.endsWith('/api')) {
+    if (baseUrl.endsWith('/')) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+    baseUrl = `${baseUrl}/api`;
+  }
+  return baseUrl;
+};
+
+const API_BASE_URL = getBaseUrl();
 
 const getHeaders = () => {
   const token = localStorage.getItem('token');
