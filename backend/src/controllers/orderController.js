@@ -70,6 +70,20 @@ exports.createOrder = async (req, res) => {
       }
     }
 
+    let dbPaymentMethod = paymentMethod || 'Card';
+    let dbPaymentStatus = 'paid';
+
+    if (paymentMethod === 'cash_on_delivery' || paymentMethod === 'COD' || paymentMethod === 'Cash on Delivery') {
+      dbPaymentStatus = 'pending';
+      dbPaymentMethod = 'Cash on Delivery';
+    } else if (paymentMethod === 'card' || paymentMethod === 'Card') {
+      dbPaymentStatus = 'paid';
+      dbPaymentMethod = 'Card';
+    } else if (paymentMethod === 'online' || paymentMethod === 'UPI') {
+      dbPaymentStatus = 'paid';
+      dbPaymentMethod = 'UPI';
+    }
+
     const order = {
       id: uuidv4(),
       userId: req.user.id,
@@ -79,8 +93,8 @@ exports.createOrder = async (req, res) => {
       couponCode: couponCode ? couponCode.toUpperCase() : null,
       items: verifiedItems,
       shippingAddress,
-      paymentMethod: paymentMethod || 'Card',
-      paymentStatus: (paymentMethod === 'COD') ? 'Pending' : 'Paid',
+      paymentMethod: dbPaymentMethod,
+      paymentStatus: dbPaymentStatus,
       createdAt: new Date().toISOString()
     };
 

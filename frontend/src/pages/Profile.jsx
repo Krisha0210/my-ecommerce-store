@@ -214,11 +214,17 @@ export default function Profile() {
                         </div>
                         <div className="flex items-center gap-3 self-end sm:self-center">
                           <span className={`text-[10px] font-bold uppercase rounded-full px-2.5 py-0.5 border ${
-                            ord.paymentStatus === 'Paid' 
-                              ? 'text-emerald-400 bg-emerald-950/20 border-emerald-500/20' 
-                              : 'text-amber-400 bg-amber-950/20 border-amber-500/20'
+                            ord.paymentMethod === 'Cash on Delivery' 
+                              ? 'text-amber-400 bg-amber-950/20 border-amber-500/20' 
+                              : (ord.paymentStatus === 'paid' || ord.paymentStatus === 'Paid')
+                                ? 'text-emerald-400 bg-emerald-950/20 border-emerald-500/20'
+                                : 'text-amber-400 bg-amber-950/20 border-amber-500/20'
                           }`}>
-                            {ord.paymentStatus === 'Paid' ? 'Paid' : 'Pending COD'}
+                            {ord.paymentMethod === 'Cash on Delivery' 
+                              ? 'Cash on Delivery - Payment Pending' 
+                              : (ord.paymentStatus === 'paid' || ord.paymentStatus === 'Paid') 
+                                ? 'Paid' 
+                                : 'Pending'}
                           </span>
                           <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform ${expandedOrder === ord.id ? 'rotate-180' : ''}`} />
                         </div>

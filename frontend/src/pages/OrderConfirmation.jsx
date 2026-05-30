@@ -36,7 +36,7 @@ export default function OrderConfirmation() {
         Thank You for Your Order!
       </h1>
       <p className="text-sm text-slate-400 text-center max-w-md mb-8">
-        {order.paymentMethod === 'COD' 
+        {order.paymentMethod === 'Cash on Delivery' 
           ? 'Your order has been registered successfully. You will pay in cash upon package delivery.' 
           : 'Your payment was authorized successfully. We have sent a purchase confirmation invoice to your email.'}
       </p>
@@ -56,8 +56,8 @@ export default function OrderConfirmation() {
           </div>
           <div>
             <span className="text-slate-500 font-semibold block uppercase text-[10px] tracking-wider">Payment Status</span>
-            <span className={order.paymentStatus === 'Paid' ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>
-              {order.paymentStatus === 'Paid' ? 'Paid' : 'Pending (COD)'}
+            <span className={order.paymentMethod === 'Cash on Delivery' ? 'text-amber-400 font-bold' : 'text-emerald-400 font-bold'}>
+              {order.paymentMethod === 'Cash on Delivery' ? 'Pay on Delivery' : 'Payment Successful'}
             </span>
           </div>
           <div>

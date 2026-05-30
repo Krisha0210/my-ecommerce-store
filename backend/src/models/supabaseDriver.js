@@ -255,10 +255,10 @@ const supabaseDriver = {
   },
   orders: {
     create: async (order) => {
-      const { id, userId, total, items, shippingAddress, paymentStatus, status } = order;
+      const { id, userId, total, items, shippingAddress, paymentMethod, paymentStatus, status } = order;
       const { v4: uuidv4 } = require('uuid');
       
-      // 1. Insert order record (excluding items array column and payment_status)
+      // 1. Insert order record
       const { error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -266,7 +266,9 @@ const supabaseDriver = {
           user_id: userId,
           total,
           shipping_address: typeof shippingAddress === 'object' ? JSON.stringify(shippingAddress) : shippingAddress,
-          status: status || 'Pending'
+          status: status || 'Pending',
+          payment_method: paymentMethod,
+          payment_status: paymentStatus
         });
       if (orderError) throw orderError;
 
@@ -316,7 +318,8 @@ const supabaseDriver = {
         total: parseFloat(o.total),
         shippingAddress: typeof o.shipping_address === 'string' ? JSON.parse(o.shipping_address) : o.shipping_address,
         status: o.status,
-        paymentStatus: 'Paid',
+        paymentMethod: o.payment_method || 'Card',
+        paymentStatus: o.payment_status || 'paid',
         createdAt: o.created_at,
         items: o.order_items ? o.order_items.map(item => ({
           productId: item.product_id,
