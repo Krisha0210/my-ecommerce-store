@@ -54,7 +54,7 @@ export default function App() {
                 } 
               />
               <Route 
-                path="/order-confirmation/:orderId" 
+                path="/order-confirmation" 
                 element={
                   <ProtectedRoute>
                     <OrderConfirmation />

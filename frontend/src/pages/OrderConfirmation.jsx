@@ -5,7 +5,7 @@ import confetti from 'canvas-confetti';
 
 export default function OrderConfirmation() {
   const location = useLocation();
-  const order = location.state?.order;
+  const { orderId, orderDetails, items, total } = location.state || {};
 
   // Trigger confetti fireworks on component load
   useEffect(() => {
@@ -13,32 +13,25 @@ export default function OrderConfirmation() {
       particleCount: 200,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#7C3AED', '#4F46E5', '#06B6D4', '#10B981']
+      colors: ['#7C3AED', '#4F46E5', '#06B6D4']
     });
-    
-    // Fire again after 1 second
-    const timer = setTimeout(() => {
-      confetti({
-        particleCount: 100,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 }
-      });
-      confetti({
-        particleCount: 100,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 }
-      });
-    }, 1000);
-
-    return () => clearTimeout(timer);
   }, []);
 
   // Safeguard: Redirect visitors accessing without order state
-  if (!order) {
+  if (!orderId && !orderDetails) {
     return <Navigate to="/" replace />;
   }
+
+  // Create an order helper object to maintain compatibility with template mapping
+  const order = {
+    id: orderId || orderDetails?.id,
+    items: items || orderDetails?.items || [],
+    total: total || orderDetails?.total || 0,
+    paymentMethod: orderDetails?.paymentMethod || 'Card',
+    paymentStatus: orderDetails?.paymentStatus || 'paid',
+    shippingAddress: orderDetails?.shippingAddress || {},
+    createdAt: orderDetails?.createdAt || new Date().toISOString()
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-16 flex flex-col items-center">

@@ -34,7 +34,7 @@ export default function Checkout() {
   const [upiId, setUpiId] = useState('');
 
   // Safeguard: Redirect empty carts
-  if (cartItems.length === 0) {
+  if (cartItems.length === 0 && !processing) {
     return <Navigate to="/cart" replace />;
   }
 
@@ -112,7 +112,14 @@ export default function Checkout() {
       
       // Simulate bank authorization processing delay
       setTimeout(() => {
-        navigate('/order-confirmation/' + order.id, { state: { order } });
+        navigate('/order-confirmation', { 
+          state: { 
+            orderId: order.id,
+            orderDetails: order,
+            items: cartItems,
+            total: total
+          }
+        });
         clearCart();
       }, 2000);
     } catch (err) {
