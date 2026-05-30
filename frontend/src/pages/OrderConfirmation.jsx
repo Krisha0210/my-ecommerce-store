@@ -9,14 +9,31 @@ export default function OrderConfirmation() {
 
   // Trigger confetti fireworks on component load
   useEffect(() => {
-    if (order) {
+    confetti({
+      particleCount: 200,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#7C3AED', '#4F46E5', '#06B6D4', '#10B981']
+    });
+    
+    // Fire again after 1 second
+    const timer = setTimeout(() => {
       confetti({
-        particleCount: 150,
-        spread: 80,
-        origin: { y: 0.6 }
+        particleCount: 100,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 }
       });
-    }
-  }, [order]);
+      confetti({
+        particleCount: 100,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 }
+      });
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Safeguard: Redirect visitors accessing without order state
   if (!order) {
@@ -105,10 +122,16 @@ export default function OrderConfirmation() {
       <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
         <Link 
           to="/"
-          className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/15 hover:translate-y-[-1px]"
+          className="flex items-center justify-center gap-2 bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/20 text-indigo-400 hover:text-white font-bold px-6 py-3.5 rounded-xl transition-all hover:translate-y-[-1px]"
         >
           <ShoppingBag className="w-4 h-4" />
           Continue Shopping
+        </Link>
+        <Link 
+          to="/profile"
+          className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/15 hover:translate-y-[-1px]"
+        >
+          View My Orders
         </Link>
       </div>
     </div>
