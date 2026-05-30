@@ -167,21 +167,27 @@ export default function ProductDetail() {
 
           {/* Rating */}
           <div className="flex items-center gap-2 mb-6">
-            <div className="flex gap-0.5">
-              {[...Array(5)].map((_, i) => (
-                <Star 
-                  key={i} 
-                  className={`w-4 h-4 ${
-                    i < Math.floor(product.rating || 5.0) 
-                      ? 'fill-amber-400 text-amber-400' 
-                      : 'text-slate-700'
-                  }`} 
-                />
-              ))}
-            </div>
-            <span className="text-sm font-semibold text-slate-300">
-              {(product.rating || 5.0).toFixed(1)} / 5.0
-            </span>
+            {product.reviews && product.reviews.length > 0 ? (
+              <>
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className={`w-4 h-4 ${
+                        i < Math.floor(product.rating || 0) 
+                          ? 'fill-amber-400 text-amber-400' 
+                          : 'text-slate-700'
+                      }`} 
+                    />
+                  ))}
+                </div>
+                <span className="text-sm font-semibold text-slate-300">
+                  {(product.rating || 0).toFixed(1)} / 5.0
+                </span>
+              </>
+            ) : (
+              <span className="text-slate-500 font-medium text-xs">No reviews yet</span>
+            )}
             <span className="text-xs text-slate-500 font-medium ml-2">
               ({product.reviews ? product.reviews.length : 0} Reviews)
             </span>
@@ -281,14 +287,14 @@ export default function ProductDetail() {
           {/* Rating Summary Card */}
           <div className="glass p-6 rounded-2xl border border-slate-900 flex flex-col gap-5">
             <div className="flex items-center gap-4">
-              <span className="text-5xl font-black text-white">{(product.rating || 5.0).toFixed(1)}</span>
+              <span className="text-5xl font-black text-white">{(product.rating || 0).toFixed(1)}</span>
               <div className="flex flex-col gap-0.5">
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star 
                       key={i} 
                       className={`w-5 h-5 ${
-                        i < Math.floor(product.rating || 5.0) 
+                        i < Math.floor(product.rating || 0) 
                           ? 'fill-amber-400 text-amber-400' 
                           : 'text-slate-700'
                       }`} 

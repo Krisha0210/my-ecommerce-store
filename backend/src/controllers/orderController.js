@@ -71,7 +71,7 @@ exports.createOrder = async (req, res) => {
     }
 
     const order = {
-      id: `ord_${uuidv4().split('-')[0]}`,
+      id: uuidv4(),
       userId: req.user.id,
       total: parseFloat(total.toFixed(2)),
       discount,
@@ -92,7 +92,7 @@ exports.createOrder = async (req, res) => {
 
     res.status(201).json(order);
   } catch (error) {
-    console.error('Create order error:', error);
+    console.error('Order error:', error.message, error.stack);
     res.status(500).json({ message: 'Server error processing order.' });
   }
 };

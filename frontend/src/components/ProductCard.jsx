@@ -66,8 +66,15 @@ export default function ProductCard({ product }) {
             {product.category}
           </span>
           <div className="flex items-center gap-1">
-            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-            <span className="font-semibold text-slate-300">{product.rating}</span>
+            {(product.reviewCount || 0) > 0 ? (
+              <>
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span className="font-semibold text-slate-300">{parseFloat(product.rating || 0).toFixed(1)}</span>
+                <span className="text-slate-500 text-[10px] ml-0.5">({product.reviewCount})</span>
+              </>
+            ) : (
+              <span className="text-slate-500 font-medium text-[11px]">No reviews yet</span>
+            )}
           </div>
         </div>
 

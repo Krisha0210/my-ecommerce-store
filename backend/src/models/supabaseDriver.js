@@ -61,17 +61,39 @@ const supabaseDriver = {
 
       const { data, error } = await query;
       if (error) throw error;
+
+      // Fetch all reviews to aggregate ratings and counts
+      const { data: allReviews } = await supabase
+        .from('reviews')
+        .select('product_id, rating');
+
+      const reviewMap = {};
+      if (allReviews) {
+        allReviews.forEach(r => {
+          if (!reviewMap[r.product_id]) {
+            reviewMap[r.product_id] = { sum: 0, count: 0 };
+          }
+          reviewMap[r.product_id].sum += r.rating;
+          reviewMap[r.product_id].count += 1;
+        });
+      }
       
       const { v5: uuidv5 } = require('uuid');
       const UUID_NAMESPACE = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
       const featuredUuids = ['prod_1', 'prod_2', 'prod_3', 'prod_6', 'prod_9', 'prod_11', 'prod_12', 'prod_13', 'prod_14'].map(id => uuidv5(id, UUID_NAMESPACE));
 
-      return (data || []).map(p => ({
-        ...p,
-        images: p.images && p.images.length > 0 ? p.images : [p.image],
-        rating: parseFloat(p.rating || 5.0),
-        featured: p.featured !== undefined ? p.featured : featuredUuids.includes(p.id)
-      }));
+      return (data || []).map(p => {
+        const revs = reviewMap[p.id];
+        const rating = revs ? parseFloat((revs.sum / revs.count).toFixed(1)) : 0;
+        const reviewCount = revs ? revs.count : 0;
+        return {
+          ...p,
+          images: p.images && p.images.length > 0 ? p.images : [p.image],
+          rating,
+          reviewCount,
+          featured: p.featured !== undefined ? p.featured : featuredUuids.includes(p.id)
+        };
+      });
     },
     getById: async (id) => {
       // 1. Fetch product fields
@@ -100,12 +122,15 @@ const supabaseDriver = {
 
       const averageRating = reviews && reviews.length > 0
         ? parseFloat((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1))
-        : parseFloat(product.rating || 5.0);
+        : 0;
+
+      const reviewCount = reviews ? reviews.length : 0;
 
       return {
         ...product,
         images: product.images && product.images.length > 0 ? product.images : [product.image],
         rating: averageRating,
+        reviewCount,
         featured: product.featured !== undefined ? product.featured : featuredUuids.includes(product.id),
         reviews: reviews ? reviews.map(r => ({
           id: r.id,
