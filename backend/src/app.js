@@ -11,23 +11,30 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Enable CORS
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://my-ecommerce-store-dusky.vercel.app',
-  'https://veloce-ecom.vercel.app',
-  process.env.FRONTEND_URL
-];
-
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      process.env.FRONTEND_URL
+    ];
+    
+    // Allow any vercel.app URL
+    if (!origin || 
+        allowedOrigins.includes(origin) || 
+        origin.endsWith('.vercel.app') ||
+        origin.includes('my-ecommerce-store')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
-}));
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 
 // Express Body Parser
 app.use(express.json());
